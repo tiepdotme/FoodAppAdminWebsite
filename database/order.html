@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Instafood</title>
+<link rel="stylesheet" href="style.css">
+
+	<!--CARDS-->
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+<!-- Optional theme -->
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+<link type="text/css" rel="stylesheet" href="cmos.css">
+<link href='https://fonts.googleapis.com/css?family=Indie+Flower' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Pacifico' rel='stylesheet' type='text/css'>
+    <meta name="description" content=" one page design." />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Codeply">
+    <link rel="stylesheet" href="./css/bootstrap.min.css" />
+    <link rel="stylesheet" href="./css/animate.min.css" />
+    <link rel="stylesheet" href="./css/ionicons.min.css" />
+    <link rel="stylesheet" href="./css/styles.css" />
+  </head>
+  <body>
+    <nav id="topNav" class="navbar navbar-default navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+
+            </div>
+            <div class="navbar-collapse collapse" id="bs-navbar">
+
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a class="navbar-brand page-scroll" href="#first"><h3 class="cursive">Instafood</h3> </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+<br>
+<br>
+<br>
+<div class="w3-container">
+  <div class="w3-panel w3-card-4"><p id="p">ORDERS</p></div>
+</div>
+
+
+
+<script src="https://www.gstatic.com/firebasejs/3.9.0/firebase.js"></script>
+<script>
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyDr_0gkrm0jS8zG9r_o1y2w-DTILJmb63Q",
+    authDomain: "foodui-a54e6.firebaseapp.com",
+    databaseURL: "https://foodui-a54e6.firebaseio.com",
+    projectId: "foodui-a54e6",
+    storageBucket: "foodui-a54e6.appspot.com",
+    messagingSenderId: "1008641117976"
+  };
+  firebase.initializeApp(config);
+</script>
+
+<script src="https://code.jquery.com/jquery-3.1.0.js"></script>
+<script src="https://raw.github.com/douglascrockford/JSON-js/master/json2.js"></script>
+<script type="text/javascript">
+	var rootRef = firebase.database().ref().child("orders");
+	//var orderRef = firebase.database().ref().child("orders").child("order");
+	var c = 0;
+  var f=0;
+	rootRef.orderByChild("timestamp").on("child_added",snap => {
+
+       if(f===1)
+      alert("New order received!");
+		var userid = snap.child("userId").val();
+		var add = snap.child("address").val();
+		var loc = snap.child("locality").val();
+		var mode = snap.child("mode_of_payment").val();
+		var user = snap.getKey();
+		//alert(add);
+		//$("#table_body").append("<tr><td>" + name + "</td><td>" + email + "</td></tr>");
+		$("#p").append("<div class='w3-panel w3-card-4'><p id= p1 >UserID : " + userid + "<br>Address : " + add + "</br>Locality : " + loc + "<br>Mode of Payment : " + mode + "</p></div>");
+
+
+		var orderRef = firebase.database().ref("/orders/" + user + "/order");
+		orderRef.on("child_added",snap2 => {
+			//$("#p").append("<div class='w3-panel w3-card-4'><p id='p1' ></p></div>");
+			var item = snap2.child("item").val();
+			var qty = snap2.child("quantity").val();
+			//var tot = snap2.child("total").val();
+			if (item != null) {
+			$("#p1").append("<p>Item : " + item + " - " + qty + "</p>");
+
+			}
+		});
+
+		var totRef = firebase.database().ref().child("orders/" + user + "/order");
+		totRef.on("child_added",snap4 => {
+			var tot = snap4.val();
+			if(typeof tot === "number")
+			{
+				$("#p1").append("<p>Total : " + tot + "</p>");
+			}
+
+		});
+
+		$("#p1").append("<button style='background-color:#000000' id= b1 onClick='reply_click(this.id,this)'>PROCESS ORDER</button>");
+		document.getElementById('b1').id= user;
+		c++;
+		cid = 'cid'+ String(c);
+		document.getElementById('p1').id = cid;
+
+		});
+
+    setTimeout(function() {
+    // Your code here
+      f=1;
+    }, 3000);
+
+  
+	function reply_click(b_user,btn)
+	{
+		d_user = $(btn).parent().attr("id");
+
+  		//insert into processed_orders
+		firebase.database().ref('/orders/' + b_user).once('value').then(function(snapshot) {
+  		var userid = snapshot.val().userId;
+		var add = snapshot.val().address;
+		var loc = snapshot.val().locality;
+		var mode = snapshot.val().mode_of_payment;
+		var time = snapshot.val().timestamp;
+
+		var postsRef = firebase.database().ref().child("processed_orders/" + b_user );
+		postsRef.update({
+    			address: add,
+   				locality: loc,
+   				mode_of_payment: mode,
+   				timestamp: time,
+   				userId:userid
+			});
+
+		var itemRef = firebase.database().ref().child("processed_orders/" + b_user + "/order");
+
+		var rRef = firebase.database().ref("/orders/" + b_user + "/order");
+		rRef.on("child_added",snap3 => {
+			//$("#p").append("<div class='w3-panel w3-card-4'><p id='p1' ></p></div>");
+			var item = snap3.child("item").val();
+			var qty = snap3.child("quantity").val();
+
+
+			var newPostRef = itemRef.push();
+			newPostRef.set({
+  				item: item,
+  				quantity: qty
+			});
+
+		});
+
+		firebase.database().ref('/orders/' + b_user + '/order').once('value').then(function(snapshot1) {
+			var tot = snapshot1.val().total;
+			//var tot = snap2.child("total").val();
+
+			itemRef.update({
+  				total: tot
+			});
+		});
+
+		});
+
+
+  		//remove node
+  		setTimeout(function() {
+    // Your code here
+   		 var id = "/orders/" + b_user;
+  		firebase.database().ref(id).remove();
+  		alert("Order Processed Successfully!");		
+		}, 1000);
+
+
+
+  		var removeref = firebase.database().ref().child("orders");
+  		removeref.on('child_removed', snap => {
+		var rem = document.getElementById(d_user);
+		rem.remove();
+		});
+
+	}
+</script>
+
+<!--<script src="index.js"></script>-->
+    <footer id="footer">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-xs-6 col-sm-3 column">
+                    <h4>Information</h4>
+                    <ul class="list-unstyled">
+                        <li><a href="">Products</a></li>
+                        <li><a href="">Services</a></li>
+                        <li><a href="">Developers</a></li>
+                    </ul>
+                </div>
+
+
+            </div>
+            <br/>
+            <span class="pull-right text-muted small"><a href="http://www.sreeharilive.wordpress.com">Designed by SREEHARI</a> ©2017 Instafood</span>
+        </div>
+    </footer>
+
+    <script src="./js/jquery.min.js"></script>
+    <script src="./js/bootstrap.min.js"></script>
+    <script src="./js/jquery.easing.min.js"></script>
+    <script src="./js/wow.js"></script>
+    <script src="./js/scripts.js"></script>
+  </body>
+</html>

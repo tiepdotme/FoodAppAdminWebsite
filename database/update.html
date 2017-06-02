@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Instafood</title>
+<link rel="stylesheet" href="style.css">
+
+	<!--CARDS-->
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+<!-- Optional theme -->
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+<link type="text/css" rel="stylesheet" href="cmos.css">
+<link href='https://fonts.googleapis.com/css?family=Indie+Flower' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Pacifico' rel='stylesheet' type='text/css'>
+    <meta name="description" content=" one page design." />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Codeply">
+    <link rel="stylesheet" href="./css/bootstrap.min.css" />
+    <link rel="stylesheet" href="./css/animate.min.css" />
+    <link rel="stylesheet" href="./css/ionicons.min.css" />
+    <link rel="stylesheet" href="./css/styles.css" />
+  </head>
+  <body>
+    <nav id="topNav" class="navbar navbar-default navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+
+            </div>
+            <div class="navbar-collapse collapse" id="bs-navbar">
+
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a class="navbar-brand page-scroll" href="#first"><h3 class="cursive">Instafood</h3> </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<center>
+  <font  color="green">
+
+<h3>Select the category:</h3>
+<select id="DropDownList" onchange="run()"></select><br>
+<h3>select the food item:</h3>
+<select id="DropDownList1" onchange="run1()"></select><br>
+<h3>Enter the new count:</h3>
+<textarea id="ta" rows="1" cols="10">
+</textarea>
+<br>
+<br>
+<br>
+<br>
+<input type="button" class="btn btn-warning" value="Update" id="add" onclick="showtext()" />
+</font>
+</center>
+
+
+
+
+
+
+<script src="https://www.gstatic.com/firebasejs/3.9.0/firebase.js"></script>
+<script>
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyDr_0gkrm0jS8zG9r_o1y2w-DTILJmb63Q",
+    authDomain: "foodui-a54e6.firebaseapp.com",
+    databaseURL: "https://foodui-a54e6.firebaseio.com",
+    projectId: "foodui-a54e6",
+    storageBucket: "foodui-a54e6.appspot.com",
+    messagingSenderId: "1008641117976"
+  };
+  firebase.initializeApp(config);
+</script>
+
+
+<script src="https://code.jquery.com/jquery-3.1.0.js"></script>
+<script src="https://raw.github.com/douglascrockford/JSON-js/master/json2.js"></script>
+<script type="text/javascript">
+  var rootRef = firebase.database().ref().child("items");
+  var c=0;
+  var sel = document.getElementById('DropDownList');
+  rootRef.on("child_added",snap => {
+
+    var user = snap.getKey();
+    var opt = document.createElement("option");
+    opt.innerHTML = user;
+    opt.value = c;
+    sel.appendChild(opt);
+    c++;
+  });
+
+  setTimeout(function() {
+    // Your code here
+     var e =0;
+     var s = document.getElementById("DropDownList").options[0].text;
+     populate(s);
+    }, 2000);
+
+  function run()
+  {
+      // Your code here
+       var e = document.getElementById("DropDownList").value;
+       var s = document.getElementById("DropDownList").options[e].text;
+       populate(s);
+  }
+
+  function populate(category)
+  {
+    document.getElementById('DropDownList1').options.length = 0;
+
+    var itemRef = firebase.database().ref().child("items/"+ category);
+
+    var k = 0;
+    var sel1 = document.getElementById('DropDownList1');
+
+    itemRef.on("child_added",snap => {
+
+    var name = snap.child("name").val();
+    var opt = document.createElement("option");
+    opt.innerHTML = name;
+    opt.value = k;
+    sel1.appendChild(opt);
+    k++;
+  });
+  }
+
+
+
+
+  function showtext(){
+    var text = document.getElementById("ta").value;
+
+    //category
+    if(text!="")
+    {
+      var itext = parseInt(text);
+      var e = document.getElementById("DropDownList").value;
+      var s = document.getElementById("DropDownList").options[e].text;
+
+      //items
+      var e = document.getElementById("DropDownList1").value;
+      var t = document.getElementById("DropDownList1").options[e].text;
+
+      var rref = firebase.database().ref().child("items/" + s);
+      rref.orderByChild("name").equalTo(t).on("child_added", function(snapshot) {
+      snapshot.ref.update({ count: itext });
+      alert("Stock Updated Successfully!");
+      });
+    }
+    else
+      alert("Please Enter a Value!");
+    
+
+  }
+
+
+
+</script>
+
+<!--<script src="index.js"></script>-->
+
+    <script src="./js/jquery.min.js"></script>
+    <script src="./js/bootstrap.min.js"></script>
+    <script src="./js/jquery.easing.min.js"></script>
+    <script src="./js/wow.js"></script>
+    <script src="./js/scripts.js"></script>
+  </body>
+</html>
